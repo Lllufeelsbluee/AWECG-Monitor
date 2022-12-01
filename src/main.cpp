@@ -83,7 +83,7 @@ void loop() {
       //Notify temperature reading from BME sensor
       //Set temperature Characteristic value and notify connected client
       // convert float to string
-      data = analogRead(34);
+      data = analogRead(32);
       // get the voltage reading
       data = data * (3.3 / 4095.0) - 1.65;
       data = data / 1000.0;
