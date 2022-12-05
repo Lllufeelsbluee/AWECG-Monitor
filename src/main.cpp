@@ -39,14 +39,19 @@ BLEDescriptor batteryDescriptor(BLEUUID((uint16_t)0x2902));
 //Setup callbacks onConnect and onDisconnect
 class MyServerCallbacks: public BLEServerCallbacks {
   void onConnect(BLEServer* pServer) {
+    Serial.println("BLE Client connected");
+    //Serial.println(CHARACTERISTIC_Heartrate_Voltage.toString().c_str());
     deviceConnected = true;
   };
   void onDisconnect(BLEServer* pServer) {
+    Serial.println("BLE Client disconnected");
     deviceConnected = false;
+    pServer->getAdvertising()->start();
   }
 };
 
 void setup() {
+  Serial.begin(115200);
 
   // Create the BLE Device
   BLEDevice::init(bleServerName);
@@ -56,7 +61,7 @@ void setup() {
   pServer->setCallbacks(new MyServerCallbacks());
 
   // Create the BLE Service
-  BLEService *ecgService = pServer->createService(SERVICE_UUID);
+  BLEService *ecgService = pServer->createService(BLEUUID(SERVICE_UUID), 256);
 
   // Create BLE Characteristics and Create a BLE Descriptor
 
@@ -84,14 +89,27 @@ void loop() {
       //Set temperature Characteristic value and notify connected client
       // convert float to string
       data = analogRead(32);
+      
       // get the voltage reading
-      data = data * (3.3 / 4095.0) - 1.65;
-      data = data / 1000.0;
-      String dataString = String(data);
-      ecgMonitor.setValue(dataString.c_str());
-      batteryLevel.setValue(String(0x64).c_str());
+      data = float(data * (3.3 / 4095.0) - 1.65);
+      
+      data = float(data / 100.0);
+      // convert float to string with 18 decimal places
+      char str[23];
+      dtostrf(data,-21, 18, str);
+      //Serial.println(str);
+
+
+      //Serial.println(str);
+      ecgMonitor.setValue(str);
+      //String dataString = String(data);
+      //ecgMonitor.setValue(dataString.c_str());
+      // set battery leve in 100 %
+      batteryLevel.setValue("200");
+      //batteryLevel.setValue(String(0x64).c_str());
 
       ecgMonitor.notify();   
+      //Serial.println(ESP.getFreeHeap());
       lastTime = millis();
     }
   }
