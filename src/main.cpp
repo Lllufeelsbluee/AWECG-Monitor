@@ -70,6 +70,7 @@ class MyServerCallbacks : public BLEServerCallbacks
     timerAlarmEnable(timer);
     //  Serial.println(CHARACTERISTIC_Heartrate_Voltage.toString().c_str());
     deviceConnected = true;
+    timerAlarmDisable(timer1);
   };
   void onDisconnect(BLEServer *pServer)
   {
@@ -123,7 +124,7 @@ void setup()
 
   pinMode(pinShutdown, OUTPUT);
 
-  digitalWrite(pinShutdown, HIGH);
+  digitalWrite(pinShutdown, LOW);
 
   // set up the sleep pin to wake up the device from sleep
   pinMode(sleepPin, INPUT);
