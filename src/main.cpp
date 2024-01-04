@@ -15,7 +15,7 @@ String joinData(int vals[], int size);
 // BLE server name
 //#define bleServerName "AWECG Monitor"
 
-//#define I2S_SAMPLE_RATE 2500
+#define I2S_SAMPLE_RATE 2500
 #define ADC_INPUT ADC1_CHANNEL_4 // pin 32
 
 #define bufferLength 5
@@ -32,15 +32,15 @@ int dataRead = 0;
 //unsigned long lastTime = 0;
 //unsigned long timerDelay = 3;
 
-int pinShutdown = 14;
-int sleepPin = 12;
+//int pinShutdown = 14;
+//int sleepPin = 12;
 
-bool deviceConnected = false;
-bool goSleep = false;
+//bool deviceConnected = false;
+//bool goSleep = false;
 
 // create timer
 hw_timer_t *timer = NULL;
-//hw_timer_t *timer1 = NULL;
+//hw_timer_t *timer = NULL;
 
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
@@ -100,9 +100,11 @@ void IRAM_ATTR onTimer()
   if (countRow == bufferLength)
   {
     countRow = 0;
-    dataRead = countBuffer;
     countBuffer++;
+    dataRead = countBuffer;
+    
     dataReady = true;
+    
      //dataRead =0;
     if (countBuffer == bufferCount)
     {
@@ -111,13 +113,15 @@ void IRAM_ATTR onTimer()
     }
   }
 
-   //Serial.println(millis());
+   //
+   Serial.println(millis());
+   
 }
 
-void IRAM_ATTR goToSleep()
-{
-  goSleep = true;
-}
+//void IRAM_ATTR goToSleep()
+//{
+ //goSleep = true;
+//}
 
 void setup()
 {
@@ -171,13 +175,13 @@ void setup()
   // i2sInit();
 
   // setting adc to read from pin 32 with 12 bits of resolution
-  adc1_config_width(ADC_WIDTH_BIT_12);
-  adc1_config_channel_atten(ADC_INPUT, ADC_ATTEN_DB_11);
+  adc1_config_width(ADC_WIDTH_BIT_12 );
+  adc1_config_channel_atten(ADC_INPUT, ADC_ATTEN_DB_0);
   
-  // create a interrupt each 1s
+  // create a interrupt each 0.5s
   timer = timerBegin(0, 80, true);
   timerAttachInterrupt(timer, &onTimer, true);
-  timerAlarmWrite(timer, 1000000 , true);
+  timerAlarmWrite(timer, 500000 , true);
   timerAlarmEnable(timer);
   
 }
@@ -205,12 +209,13 @@ void loop()
 
      
     lastTimeDataSent = millis();
-    dataReady = false;
+    
     Serial.printf("timer interrupt %d \t", lastTimeDataSent);
-    
-    
     sendData();
+    dataReady = false;
+    
     Serial.printf("timer end interrupt %d \n", millis());
+    
      }
     // data[count] = dataRead;
     // count++;
@@ -302,7 +307,7 @@ String joinData(int vals[bufferLength], int size)
 void sendData()
 {
 
-  
+ 
   
     // Serial.println(millis());
     //  ecgMonitor.notify();
